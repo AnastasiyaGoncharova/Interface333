@@ -83,7 +83,6 @@
         android:layout_height="wrap_content"
         android:text="Перезвонить" />
 
-    <!-- Добавлено поле для комментариев -->
     <EditText
         android:id="@+id/editTextComments"
         android:layout_width="match_parent"
