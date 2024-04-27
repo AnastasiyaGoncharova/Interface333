@@ -64,7 +64,6 @@
         android:layout_height="wrap_content"
         android:text="Документы сданы" />
 
-    <!-- Новые CheckBox для "иногородние", "временное в отъезде", "перезвонить" -->
     <CheckBox
         android:id="@+id/checkBoxOutsider"
         android:layout_width="wrap_content"
@@ -83,7 +82,6 @@
         android:layout_height="wrap_content"
         android:text="Перезвонить" />
 
-    <!-- Добавлено поле для комментариев -->
     <EditText
         android:id="@+id/editTextComments"
         android:layout_width="match_parent"
