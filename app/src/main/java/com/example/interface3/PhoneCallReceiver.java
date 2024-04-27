@@ -15,7 +15,6 @@ public class PhoneCallReceiver extends BroadcastReceiver {
             TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             String phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 
-            // Запуск поиска соискателя по номеру телефона
             AddApplicant addApplicant = new AddApplicant(new AddApplicant.SearchResponseListener() {
                 @Override
                 public void onApplicantFound(String applicantId) {
