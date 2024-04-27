@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/editTextFullName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ФИО" />
+
+    <EditText
+        android:id="@+id/editTextPhoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Номер телефона" />
+
+    <EditText
+        android:id="@+id/editTextEgeScore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Баллы ЕГЭ" />
+
+    <EditText
+        android:id="@+id/editTextPriority"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Приоритет" />
+
+    <EditText
+        android:id="@+id/editTextProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Профиль" />
+
+    <CheckBox
+        android:id="@+id/checkBoxWillGetIn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Буду поступать!" />
+
+    <CheckBox
+        android:id="@+id/checkBoxWillNotGetIn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Не буду поступать" />
+
+    <CheckBox
+        android:id="@+id/checkBoxSubmitDocuments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Донесу документы" />
+
+    <CheckBox
+        android:id="@+id/checkBoxAlreadyEnrolled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Уже зачислен" />
+
+    <CheckBox
+        android:id="@+id/checkBoxDocumentsSubmitted"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Документы сданы" />
+
+    <!-- Новые CheckBox для "иногородние", "временное в отъезде", "перезвонить" -->
+    <CheckBox
+        android:id="@+id/checkBoxOutsider"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Иногородние" />
+
+    <CheckBox
+        android:id="@+id/checkBoxTemporaryLeave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Временно в отъезде" />
+
+    <CheckBox
+        android:id="@+id/checkBoxCallback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Перезвонить" />
+
+    <!-- Добавлено поле для комментариев -->
+    <EditText
+        android:id="@+id/editTextComments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Комментарии" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Сохранить" />
+
+</LinearLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Установка для отключения ActionBar -->
+        <item name="windowActionBar">false</item>
+        <!-- Установка для использования Toolbar вместо ActionBar -->
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>
