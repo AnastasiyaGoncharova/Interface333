@@ -8,13 +8,11 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Main Content Layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Toolbar -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -22,7 +20,6 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-        <!-- TextViews for Headers -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -58,7 +55,6 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
-        <!-- ListView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
@@ -66,7 +62,6 @@
             android:layout_weight="1" />
     </LinearLayout>
 
-    <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="wrap_content"

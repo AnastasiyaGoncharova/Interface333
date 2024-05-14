@@ -1,10 +1,14 @@
 package com.example.interface3;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
-import com.android.car.ui.recyclerview.CarUiContentListItem;
+import androidx.core.content.ContextCompat;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 public class Applicant implements Serializable {
     private String id;
@@ -25,9 +29,12 @@ public class Applicant implements Serializable {
     private boolean isTemporaryLeave;
     private boolean isCallback;
     private String comments;
+    private List<String> statuses;
+    private int imageResource;
+    private Drawable applicantImageResource;
    /* private OnClickListener onClickListener;*/
 
-    public Applicant(String firstName, String lastName, String middleName, int eGE, int priority, String profile, String id) {
+    public Applicant(String firstName, String lastName, String middleName, int eGE, int priority, String profile, String id, List<String>  statuses) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
@@ -36,6 +43,58 @@ public class Applicant implements Serializable {
         this.profile = profile;
         this.checked = checked;
         this.id = id;
+        if (statuses != null && !statuses.isEmpty()) {
+            this.statuses = statuses;
+        } else {
+            this.statuses = Collections.singletonList("Статус не указан");
+        }
+    }
+
+    public Drawable getImageResource(Context context, List<String> statuses) {
+        Log.d("Status", "Status value: " + statuses);
+        if (statuses != null) {
+            for (String status : statuses) {
+                switch (status) {
+                    case "Буду поступать!":
+                        return ContextCompat.getDrawable(context, R.drawable.go);
+                    case "Не буду поступать":
+                        return ContextCompat.getDrawable(context, R.drawable.notgo);
+                    case "Донесу документы":
+                        return ContextCompat.getDrawable(context, R.drawable.docnest);
+                    case "Уже зачислен":
+                        return ContextCompat.getDrawable(context, R.drawable.zach);
+                    case "Документы сданы":
+                        return ContextCompat.getDrawable(context, R.drawable.docsdan);
+                    case "Иногородние":
+                    case "Временно в отъезде":
+                    case "Перезвонить":
+                        return ContextCompat.getDrawable(context, R.drawable.perezon);
+                    default:
+                        return ContextCompat.getDrawable(context, R.drawable.etstatus);
+                }
+            }
+        }
+        return ContextCompat.getDrawable(context, R.drawable.etstatus);
+    }
+
+    public void setApplicantImageResource(Drawable resource) {
+        this.applicantImageResource = resource;
+    }
+
+    public Drawable getApplicantImageResource() {
+        return applicantImageResource;
+    }
+
+    public void setImageResource(int imageResource) {
+        this.imageResource = imageResource;
+    }
+
+    public List<String> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(String status) {
+        this.statuses = statuses;
     }
 
     public String getId() { return id; } // Getter for id
@@ -158,6 +217,7 @@ public class Applicant implements Serializable {
     public void setChecked(boolean checked) {
         this.checked = checked;
     }
+
 
 /*    public interface OnClickListener {
         void onApplicantClicked(Applicant applicant);

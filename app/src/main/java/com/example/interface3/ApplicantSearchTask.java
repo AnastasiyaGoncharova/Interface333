@@ -40,18 +40,15 @@ public class ApplicantSearchTask extends AsyncTask<String, Void, String> {
         String foundApplicantId = null;
 
         try {
-            // Make API call to CRM
             URL url = new URL(CRM_URL);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("X-Api-Key", "35394ef793765af61ffc73725315ff2f");
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             String jsonResponse = convertStreamToString(in);
 
-            // Parse JSON response
             JSONObject jsonObject = new JSONObject(jsonResponse);
             JSONArray applicantList = jsonObject.getJSONArray("list");
 
-            // Find applicant by matching firstName and lastName
             for (int i = 0; i < applicantList.length(); i++) {
                 JSONObject applicant = applicantList.getJSONObject(i);
                 String firstName = applicant.getString("firstName");

@@ -1,0 +1,42 @@
+package com.example.interface3;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class Service {
+    private static final String TAG = "Service";
+    private Context context;
+
+    public Service(Context context) {
+        this.context = context;
+    }
+
+    public void checkNumberInCRM(String phoneNumber) {
+        new AddApplicantService(context, new AddApplicantService.OnApplicantIdReceivedListener() {
+            @Override
+            public void onApplicantIdReceived(String applicantId) {
+                if (applicantId != null) {
+                    Log.d(TAG, "Received applicantId: " + applicantId);
+                    Intent intent = new Intent(context, FullApplicant.class);
+                    intent.putExtra("applicantId", applicantId);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                } else {
+                    Log.d(TAG, "Applicant not found.");
+                }
+            }
+        }).execute(phoneNumber);
+    }
+}

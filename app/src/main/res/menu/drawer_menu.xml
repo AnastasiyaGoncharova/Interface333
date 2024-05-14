@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/nav_filter_by_status"
-        android:title="Фильтр по статусу" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/nav_filter_by_score"
         android:title="Фильтр по ЕГЭ" />
@@ -10,6 +7,34 @@
         android:id="@+id/nav_filter_by_priority"
         android:title="Фильтр по приоритету" />
     <item
-        android:id="@+id/nav_add_applicant"
+        android:id="@+id/nav_found_applicant"
         android:title="Определить абитуриента" />
+
+    <group android:id="@+id/status_group">
+        <item
+            android:id="@+id/status_go"
+            android:title="Буду поступать!" />
+        <item
+            android:id="@+id/status_notgo"
+            android:title="Не буду поступать" />
+        <item
+            android:id="@+id/status_nesti"
+            android:title="Донесу документы" />
+        <item
+            android:id="@+id/status_ok"
+            android:title="Уже зачислен" />
+        <item
+            android:id="@+id/status_sdan"
+            android:title="Документы сданы" />
+        <item
+            android:id="@+id/status_outsider"
+            android:title="Иногородние" />
+        <item
+            android:id="@+id/status_goout"
+            android:title="Временно в отъезде" />
+        <item
+            android:id="@+id/status_call"
+            android:title="Перезвонить" />
+    </group>
 </menu>
+

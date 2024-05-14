@@ -1,6 +1,9 @@
 package com.example.interface3;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,11 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 public class NetworkRequestTask extends AsyncTask<Void, Void, List<Applicant>> {
     private NetworkResponseListener listener;
+    private Context context;
 
-    public NetworkRequestTask(NetworkResponseListener listener) {
+    public NetworkRequestTask(NetworkResponseListener listener, Context context) {
         this.listener = listener;
+        this.context = context;
     }
-
     @Override
     protected List<Applicant> doInBackground(Void... params) {
         List<Applicant> applicants = new ArrayList<>();
@@ -54,16 +58,33 @@ public class NetworkRequestTask extends AsyncTask<Void, Void, List<Applicant>> {
                     int priority = jsonApplicant.optInt("priority", 0);
                     String profile = jsonApplicant.optString("profile", "");
 
-                    // Получение id каждого абитуриента
                     String id = String.valueOf(jsonApplicant.optInt("id", 0));
 
-                    Applicant applicant = new Applicant(firstName, lastName, middleName, eGE, priority, profile, id);
-                    applicant.setId(id); // Установка id абитуриента
+                    JSONArray jsonCheckbox = jsonApplicant.optJSONArray("checkbox");
+                    List<String> statuses = new ArrayList<>();
+                    if (jsonCheckbox != null) {
+                        for (int j = 0; j < jsonCheckbox.length(); j++) {
+                            String potentialStatus = jsonCheckbox.optString(j, "");
+                            if (potentialStatus != null && !potentialStatus.isEmpty()) {
+                                statuses.add(potentialStatus);
+                            }
+                        }
+                    }
+                    Applicant applicant = new Applicant(firstName, lastName, middleName, eGE, priority, profile, id, statuses);
+                    if (!statuses.isEmpty()) {
+                        for (String status : statuses) {
+                            Log.d("Status", "Status value: " + status);
+                            Drawable imageResource = applicant.getImageResource(context, statuses);
+
+                            applicant.setApplicantImageResource(imageResource);
+                        }
+                        applicant.setStatuses(statuses.get(0));
+                        Log.d("Status", "Status value: " + statuses.get(0));
+                    }
 
                     applicants.add(applicant);
                 }
-            }
-
+                }
             connection.disconnect();
         } catch (IOException | JSONException e) {
             e.printStackTrace();

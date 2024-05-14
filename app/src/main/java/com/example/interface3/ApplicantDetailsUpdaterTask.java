@@ -3,6 +3,8 @@ package com.example.interface3;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.firebase.firestore.core.EventManager;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,19 +15,22 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.Charset;
+import java.util.List;
 
 public class ApplicantDetailsUpdaterTask extends AsyncTask<FullApplicantDetails, Void, Boolean> {
 
     private NetworkResponseListener listener;
     private String applicantId;
+    private List<String> checkbox;
 
     public interface NetworkResponseListener {
         void onDataUpdated(boolean success);
     }
 
-    public ApplicantDetailsUpdaterTask(String applicantId, NetworkResponseListener listener) {
+    public ApplicantDetailsUpdaterTask(String applicantId, List<String> checkbox, NetworkResponseListener listener) {
         this.listener = listener;
         this.applicantId = applicantId;
+        this.checkbox = checkbox;
     }
 
     @Override
@@ -62,23 +67,14 @@ public class ApplicantDetailsUpdaterTask extends AsyncTask<FullApplicantDetails,
             jsonRequest.put("eGE", updatedApplicantDetails.geteGE());
             jsonRequest.put("priority", updatedApplicantDetails.getPriority());
             jsonRequest.put("profile", updatedApplicantDetails.getProfile());
-            jsonRequest.put("checkbox", new JSONArray(updatedApplicantDetails.getCheckbox()));
+            jsonRequest.put("checkbox", new JSONArray(checkbox));
             jsonRequest.put("comment", updatedApplicantDetails.getComment());
-
-            Log.d("ApplicantDetailsUpdaterTask", "Отправка данных на сервер начата");
-            Log.d("ApplicantDetailsUpdaterTask", "applicantId: " + applicantId);
-            /*OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(jsonRequest.toString().getBytes(StandardCharsets.UTF_8));
-            outputStream.close();*/
-
+            Log.d("checkbox", checkbox.toString());
             OutputStream outputStream = connection.getOutputStream();
-            String utf8JsonRequest = jsonRequest.toString(); // Получение данных в формате UTF-8
-            // Преобразование данных из UTF-8 в Unicode-escape
+            String utf8JsonRequest = jsonRequest.toString();
             String unicodeEscapedJsonRequest = escapeUnicode(utf8JsonRequest);
             outputStream.write(unicodeEscapedJsonRequest.getBytes(StandardCharsets.UTF_8)); // Отправка данных в формате Unicode-escape
             outputStream.close();
-            Log.d("ApplicantDetailsUpdaterTask", "Исходящий запрос на сервер: " + jsonRequest.toString());
-            Log.d("ApplicantDetailsUpdaterTask", "Данные успешно отправлены на сервер");
 
             int responseCode = connection.getResponseCode();
 
@@ -88,7 +84,6 @@ public class ApplicantDetailsUpdaterTask extends AsyncTask<FullApplicantDetails,
 
         } catch (IOException | JSONException e) {
             e.printStackTrace();
-            Log.e("ApplicantDetailsUpdaterTask", "Ошибка при отправке данных на сервер: " + e.getMessage());
         } finally {
             if (connection != null) {
                 connection.disconnect();

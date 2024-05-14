@@ -1,18 +1,20 @@
 package com.example.interface3;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.Manifest;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private List<String> priorities = new ArrayList<>();
     private List<String> profiles = new ArrayList<>();
     private List<Boolean> isChecked = new ArrayList<>();
+    List<String> selectedStatuses = new ArrayList<>();
     private boolean isScoreFiltered = false;
     private boolean isPriorityFiltered = false;
     private static final int YOUR_REQUEST_CODE = 1;
@@ -44,7 +47,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private List<Map<String, Object>> filteredData;
     private List<Map<String, Object>> originalData;
     private List<Applicant> applicantsToSearch = new ArrayList<>();
-    private PhoneCallReceiver phoneCallReceiver;
+    /*private PhoneCallReceiver phoneCallReceiver;*/
+    private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 1;
+    private static final String TAG = "MainActivity";
+    private static final int PERMISSION_REQUEST_CODE = 1;
+    private CallReceiver callReceiver;
+    private boolean isApplicantButtonClicked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +78,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     map.put("eGE", applicant.geteGE());
                     map.put("priority", applicant.getPriority());
                     map.put("profile", applicant.getProfile());
+                    // Получаем список статусов как ArrayList
+                    ArrayList<String> statuses = new ArrayList<>(applicant.getStatuses());
+                    // Преобразуем ArrayList в List<String>
+                    List<String> statusesList = new ArrayList<>(statuses);
+
+                    map.put("statuses", statusesList);
+                    Log.d("Applicant Statuses", "Applicant Statuses: " + statusesList);
                     convertedData.add(map);
                 }
 
@@ -82,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     }
                 });
             }
-        });
+        }, getApplicationContext());
         networkTask.execute();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -97,29 +112,95 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
 
-            if (id == R.id.nav_filter_by_status) {
-                filterByStatus();
+            if (id == R.id.status_go || id == R.id.status_notgo || id == R.id.status_nesti || id == R.id.status_ok || id == R.id.status_sdan || id == R.id.status_outsider || id == R.id.status_goout || id == R.id.status_call) {
+                item.setChecked(!item.isChecked()); // Переключение состояния радиокнопки или флажка
+
+                List<String> selectedStatuses = new ArrayList<>();
+                MenuItem goItem = navigationView.getMenu().findItem(R.id.status_go);
+                MenuItem notgoItem = navigationView.getMenu().findItem(R.id.status_notgo);
+                MenuItem nestiItem = navigationView.getMenu().findItem(R.id.status_nesti);
+                MenuItem okItem = navigationView.getMenu().findItem(R.id.status_ok);
+                MenuItem sdanItem = navigationView.getMenu().findItem(R.id.status_sdan);
+                MenuItem outsiderItem = navigationView.getMenu().findItem(R.id.status_outsider);
+                MenuItem gooutItem = navigationView.getMenu().findItem(R.id.status_goout);
+                MenuItem callItem = navigationView.getMenu().findItem(R.id.status_call);
+
+                if (goItem.isChecked()) {
+                    selectedStatuses.add("Буду поступать!");
+                }
+                if (notgoItem.isChecked()) {
+                    selectedStatuses.add("Не буду поступать");
+                }
+                if (nestiItem.isChecked()) {
+                    selectedStatuses.add("Донести документы");
+                }
+                if (okItem.isChecked()) {
+                    selectedStatuses.add("Уже зачислен");
+                }
+                if (sdanItem.isChecked()) {
+                    selectedStatuses.add("Документы сданы");
+                }
+                if (outsiderItem.isChecked()) {
+                    selectedStatuses.add("Иногородние");
+                }
+                if (gooutItem.isChecked()) {
+                    selectedStatuses.add("Временно в отъезде");
+                }
+                if (callItem.isChecked()) {
+                    selectedStatuses.add("Перезвонить");
+                }
+
+                filterByStatus(selectedStatuses, data);
             } else if (id == R.id.nav_filter_by_score) {
                 filterByScore();
             } else if (id == R.id.nav_filter_by_priority) {
                 filterByPriority();
-            } else if (id == R.id.nav_add_applicant) {
+            } else if (id == R.id.nav_found_applicant) {
                 filterByApplicant();
             }
 
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         });
+       /* phoneCallReceiver = new PhoneCallReceiver();*/
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED) {
+            startCallInterceptor();
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CALL_LOG},
+                    PERMISSION_REQUEST_CODE);
+        }
     }
 
-   /* @Override
-    public void onApplicantClicked(Applicant applicant) {
-        Log.d("ApplicantClick", "Clicked on Applicant: " + applicant.getLastName() + " " + applicant.getFirstName() + " " + applicant.getMiddleName());
-        Log.d("ApplicantClick", "ID: " + applicant.getId());
-        Log.d("ApplicantClick", "Profile: " + applicant.getProfile());
-        Log.d("ApplicantClick", "Score: " + applicant.geteGE());
-        Log.d("ApplicantClick", "Priority: " + applicant.getPriority());
-    }*/
+    private void startCallInterceptor() {
+        if (isApplicantButtonClicked) {
+            callReceiver = new CallReceiver();
+            IntentFilter intentFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+            registerReceiver(callReceiver, intentFilter);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (callReceiver != null) {
+            unregisterReceiver(callReceiver);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                startCallInterceptor();
+            } else {
+                Toast.makeText(this, "Permission denied for reading phone state and call log", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     public void onItemClick(Applicant applicant) {
@@ -130,106 +211,59 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         Log.d("ApplicantClick", "Priority: " + applicant.getPriority());
     }
 
-       /* private void initAdapterData () {
-            // Заполнение списка данных (предположим, что applicants, scores, priorities, profiles, isChecked - это ваши списки)
-            for (int i = 0; i < applicants.size(); i++) {
-                Map<String, Object> listItem = new HashMap<>();
-                listItem.put("applicant", applicants.get(i));
-                listItem.put("score", scores.get(i));
-                listItem.put("priority", priorities.get(i));
-                listItem.put("profile", profiles.get(i));
-                listItem.put("checked", isChecked.get(i));
-                data.add(listItem);
-            }
-        }*/
+    private void filterByStatus(List<String> selectedStatuses, List<Map<String, Object>> data) {
+        List<Map<String, Object>> matchedApplicants = new ArrayList<>();
+        List<Map<String, Object>> remainingApplicants = new ArrayList<>();
 
+        for (int i = 0; i < data.size(); i++) {
+            Map<String, Object> applicant = data.get(i);
+            List<String> statuses = (List<String>) applicant.get("statuses");
 
-    /*@Override
-    public void onApplicantFound(String applicantId) {
-        if (applicantId != null) {
-            Log.d("ApplicantSearch", "Found Applicant ID: " + applicantId);
-        } else {
-            Log.d("ApplicantSearch", "Applicant not found");
-        }
-    }*/
-
-        /*@Override
-        protected void onActivityResult ( int requestCode, int resultCode, Intent returnedData){
-            super.onActivityResult(requestCode, resultCode, returnedData);
-
-            if (requestCode == YOUR_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-                if (returnedData != null && returnedData.hasExtra("newApplicantData")) {
-                    String newApplicantData = returnedData.getStringExtra("newApplicantData");
-
-                    String[] splitData = newApplicantData.split(" ");
-                    if (splitData.length >= 7) {
-                        String fullName = splitData[0] + " " + splitData[1] + " " + splitData[2];
-                        String phoneNumber = splitData[3];
-                        int egeScore = Integer.parseInt(splitData[4]);
-                        int priority = Integer.parseInt(splitData[5]);
-                        String profile = splitData[6];
-
-                        // Форматирование ФИО
-                        String[] splitFullName = fullName.split(" ");
-                        if (splitFullName.length == 3) {
-                            fullName = splitFullName[0] + " " + splitFullName[1] + " " + splitFullName[2];
-                        }
-
-                        // Добавление нового аппликанта к списку
-                        Map<String, Object> newApplicant = new HashMap<>();
-                        newApplicant.put("applicant", fullName);
-                        newApplicant.put("phone", phoneNumber);
-                        newApplicant.put("score", egeScore);
-                        newApplicant.put("priority", priority);
-                        newApplicant.put("profile", profile);
-                        newApplicant.put("checked", false);
-
-                        data.add(newApplicant); // Обновление списка данных
-
-                        // Обновление адаптера
-                        adapter.notifyDataSetChanged();
-                    }
+            boolean matched = false;
+            for (String status : statuses) {
+                if (selectedStatuses.isEmpty() || selectedStatuses.contains(status)) {
+                    matched = true;
+                    break;
                 }
             }
-        }*/
 
-    private void filterByStatus() {
+            if (matched) {
+                matchedApplicants.add(applicant);
+            } else {
+                remainingApplicants.add(applicant);
+            }
+        }
+
+        data.clear();
+        data.addAll(matchedApplicants);
+        data.addAll(remainingApplicants);
+
+        runOnUiThread(() -> {
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void filterByScore() {
+        List<Map<String, Object>> newData = new ArrayList<>(data);
+        newData.sort(Comparator.comparingInt((Map<String, Object> contact) -> (int) contact.get("eGE")).reversed());
+        adapter.updateData(newData);
+    }
+
+    private void filterByPriority() {
         List<Map<String, Object>> filteredData = new ArrayList<>(data);
 
-        Comparator<Map<String, Object>> statusComparator = (contact1, contact2) -> {
-            boolean checked1 = (boolean) contact1.get("isChecked");
-            boolean checked2 = (boolean) contact2.get("isChecked");
+        Comparator<Map<String, Object>> priorityComparator = Comparator.comparingInt(contact -> (int) contact.get("priority"));
 
-            if (checked1 && !checked2) {
-                return 1;
-            } else if (!checked1 && checked2) {
-                return -1;
-            } else {
-                return 0;
-            }
-        };
-
-        filteredData.sort(statusComparator);
+        filteredData.sort(priorityComparator);
         adapter.updateData(filteredData);
     }
 
-        private void filterByScore () {
-            List<Map<String, Object>> newData = new ArrayList<>(data);
-            newData.sort(Comparator.comparingInt((Map<String, Object> contact) -> (int) contact.get("eGE")).reversed());
-            adapter.updateData(newData);
-        }
+    private void filterByApplicant() {
+        isApplicantButtonClicked = true;
 
-        private void filterByPriority () {
-            List<Map<String, Object>> filteredData = new ArrayList<>(data);
+        startCallInterceptor();
 
-            Comparator<Map<String, Object>> priorityComparator = Comparator.comparingInt(contact -> (int) contact.get("priority"));
-
-            filteredData.sort(priorityComparator);
-            adapter.updateData(filteredData);
-        }
-
-        private void filterByApplicant (){
-            PhoneCallReceiver phoneCallReceiver = new PhoneCallReceiver();
-            phoneCallReceiver.onReceive(this, new Intent(TelephonyManager.ACTION_PHONE_STATE_CHANGED));
-        }
     }
+}

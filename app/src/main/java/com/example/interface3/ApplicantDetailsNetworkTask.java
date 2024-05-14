@@ -1,7 +1,9 @@
 package com.example.interface3;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,15 +13,18 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ApplicantDetailsNetworkTask extends AsyncTask<Void, Void, FullApplicantDetails> {
     private NetworkResponseListener listener;
     private String applicantId;
+    private List<String> checkboxNames;
 
     public ApplicantDetailsNetworkTask(NetworkResponseListener listener, String applicantId) {
         this.listener = listener;
         this.applicantId = applicantId;
+        this.checkboxNames = new ArrayList<>();
     }
 
     @Override
@@ -52,11 +57,17 @@ public class ApplicantDetailsNetworkTask extends AsyncTask<Void, Void, FullAppli
                 int eGE = jsonResponse.optInt("eGE", 0);
                 int priority = jsonResponse.optInt("priority", 0);
                 String profile = jsonResponse.optString("profile", "");
-                List<String> checkbox = new ArrayList<>();
+                JSONArray checkBoxArray = jsonResponse.optJSONArray("checkbox");
+                if (checkBoxArray != null) {
+                    for (int i = 0; i < checkBoxArray.length(); i++) {
+                        checkboxNames.add(checkBoxArray.getString(i));
+                    }
+                }
+                Log.d("CheckboxNames", checkboxNames.toString());
                 String comment = jsonResponse.optString("comment", "");
 
                 fullApplicantDetails = new FullApplicantDetails(firstName, lastName, middleName, phoneNumber, eGE,
-                        priority, profile, checkbox, comment);
+                        priority, profile, checkboxNames, comment);
             }
 
             connection.disconnect();
@@ -70,12 +81,12 @@ public class ApplicantDetailsNetworkTask extends AsyncTask<Void, Void, FullAppli
     @Override
     protected void onPostExecute(FullApplicantDetails result) {
         super.onPostExecute(result);
-        if (listener != null) {
-            listener.onDataReceived(result);
+        if (listener != null && result != null) {
+            listener.onDataReceived(result, checkboxNames);
         }
     }
 
     public interface NetworkResponseListener {
-        void onDataReceived(FullApplicantDetails fullApplicantDetails);
+        void onDataReceived(FullApplicantDetails fullApplicantDetails, List<String> checkboxNames);
     }
 }
