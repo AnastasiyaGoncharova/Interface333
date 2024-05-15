@@ -3,8 +3,6 @@ package com.example.interface3;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.firebase.firestore.core.EventManager;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,7 +12,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.charset.Charset;
 import java.util.List;
 
 public class ApplicantDetailsUpdaterTask extends AsyncTask<FullApplicantDetails, Void, Boolean> {
@@ -69,7 +66,6 @@ public class ApplicantDetailsUpdaterTask extends AsyncTask<FullApplicantDetails,
             jsonRequest.put("profile", updatedApplicantDetails.getProfile());
             jsonRequest.put("checkbox", new JSONArray(checkbox));
             jsonRequest.put("comment", updatedApplicantDetails.getComment());
-            Log.d("checkbox", checkbox.toString());
             OutputStream outputStream = connection.getOutputStream();
             String utf8JsonRequest = jsonRequest.toString();
             String unicodeEscapedJsonRequest = escapeUnicode(utf8JsonRequest);

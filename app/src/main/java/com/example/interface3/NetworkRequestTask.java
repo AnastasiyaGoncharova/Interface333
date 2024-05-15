@@ -28,12 +28,13 @@ public class NetworkRequestTask extends AsyncTask<Void, Void, List<Applicant>> {
     protected List<Applicant> doInBackground(Void... params) {
         List<Applicant> applicants = new ArrayList<>();
         String urlString = "https://crm.elcity.ru/api/v1/Contact?offset=0&maxSize=20";
+        String apiKey = context.getString(R.string.api_key);
 
         try {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("X-Api-Key", "35394ef793765af61ffc73725315ff2f");
+            connection.setRequestProperty("X-Api-Key", apiKey);
 
             int responseCode = connection.getResponseCode();
 
@@ -73,13 +74,11 @@ public class NetworkRequestTask extends AsyncTask<Void, Void, List<Applicant>> {
                     Applicant applicant = new Applicant(firstName, lastName, middleName, eGE, priority, profile, id, statuses);
                     if (!statuses.isEmpty()) {
                         for (String status : statuses) {
-                            Log.d("Status", "Status value: " + status);
                             Drawable imageResource = applicant.getImageResource(context, statuses);
 
                             applicant.setApplicantImageResource(imageResource);
                         }
                         applicant.setStatuses(statuses.get(0));
-                        Log.d("Status", "Status value: " + statuses.get(0));
                     }
 
                     applicants.add(applicant);

@@ -6,9 +6,9 @@
     <item
         android:id="@+id/nav_filter_by_priority"
         android:title="Фильтр по приоритету" />
-    <item
+   <!-- <item
         android:id="@+id/nav_found_applicant"
-        android:title="Определить абитуриента" />
+        android:title="Определить абитуриента" /> -->
 
     <group android:id="@+id/status_group">
         <item

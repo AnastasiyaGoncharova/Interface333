@@ -3,7 +3,6 @@ package com.example.interface3;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -12,17 +11,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.firestore.core.EventManager;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FullApplicant extends AppCompatActivity  implements ApplicantDetailsNetworkTask.NetworkResponseListener {
 
-    List<Map<String, Object>> data = new ArrayList<>();
-    private CustomAdapter adapter;
     EditText editTextFullName, editTextPhoneNumber, editTextEgeScore, editTextPriority, editTextProfile, editTextComments;
     CheckBox checkBoxWillGetIn, checkBoxWillNotGetIn, checkBoxSubmitDocuments, checkBoxAlreadyEnrolled, checkBoxDocumentsSubmitted, checkBoxOutsider, checkBoxTemporaryLeave, checkBoxCallback;
     Button btnSaveChanges;
@@ -176,13 +169,13 @@ public class FullApplicant extends AppCompatActivity  implements ApplicantDetail
                             case "Не буду поступать":
                                 checkBoxWillNotGetIn.setChecked(true);
                                 break;
-                            case "Документы сданы":
+                            case "Донесу документы":
                                 checkBoxSubmitDocuments.setChecked(true);
                                 break;
                             case "Уже зачислен":
                                 checkBoxAlreadyEnrolled.setChecked(true);
                                 break;
-                            case "Документы не сданы":
+                            case "Документы сданы":
                                 checkBoxDocumentsSubmitted.setChecked(true);
                                 break;
                             case "Иногородние":
@@ -201,43 +194,5 @@ public class FullApplicant extends AppCompatActivity  implements ApplicantDetail
                 }
             }
         });
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Intent intent = new Intent("FULL_APPLICANT_DESTROYED");
-        sendBroadcast(intent);
-
-        NetworkRequestTask networkTask = new NetworkRequestTask(new NetworkRequestTask.NetworkResponseListener() {
-            @Override
-            public void onDataReceived(List<Applicant> newData) {
-                List<Map<String, Object>> convertedData = new ArrayList<>();
-                for (Applicant applicant : newData) {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("firstName", applicant.getFirstName());
-                    map.put("lastName", applicant.getLastName());
-                    map.put("middleName", applicant.getMiddleName());
-                    map.put("eGE", applicant.geteGE());
-                    map.put("priority", applicant.getPriority());
-                    map.put("profile", applicant.getProfile());
-                    ArrayList<String> statuses = new ArrayList<>(applicant.getStatuses());
-                    List<String> statusesList = new ArrayList<>(statuses);
-
-                    map.put("statuses", statusesList);
-                    Log.d("Applicant Statuses", "Applicant Statuses: " + statusesList);
-                    convertedData.add(map);
-                }
-
-                runOnUiThread(() -> {
-                    data.clear();
-                    data.addAll(convertedData);
-
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
-                });
-            }
-        }, getApplicationContext());
-        networkTask.execute();
     }
 }

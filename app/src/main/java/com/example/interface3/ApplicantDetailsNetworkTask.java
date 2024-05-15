@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ApplicantDetailsNetworkTask extends AsyncTask<Void, Void, FullApplicantDetails> {
@@ -63,7 +62,6 @@ public class ApplicantDetailsNetworkTask extends AsyncTask<Void, Void, FullAppli
                         checkboxNames.add(checkBoxArray.getString(i));
                     }
                 }
-                Log.d("CheckboxNames", checkboxNames.toString());
                 String comment = jsonResponse.optString("comment", "");
 
                 fullApplicantDetails = new FullApplicantDetails(firstName, lastName, middleName, phoneNumber, eGE,

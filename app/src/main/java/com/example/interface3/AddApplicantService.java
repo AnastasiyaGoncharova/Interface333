@@ -1,6 +1,4 @@
-
 package com.example.interface3;
-
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -17,20 +15,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class AddApplicantService extends AsyncTask<String, Void, String> {
-        private static final String TAG = "AddApplicantService";
-        private Context mContext;
-        private OnApplicantIdReceivedListener mListener;
+    private static final String TAG = "AddApplicantService";
+    private Context mContext;
+    private OnApplicantIdReceivedListener mListener;
+    private String mPhoneNumber;
 
-        public AddApplicantService(Context context, OnApplicantIdReceivedListener listener) {
-            this.mContext = context;
-            this.mListener = listener;
-        }
+    public AddApplicantService(Context context, OnApplicantIdReceivedListener listener) {
+        this.mContext = context;
+        this.mListener = listener;
+    }
 
-
-        @Override
+    @Override
     protected String doInBackground(String... params) {
-        String phoneNumber = params[0];
-        String url = "https://crm.elcity.ru/api/v1/Contact?offset=0&maxSize=20&phone=" + phoneNumber;
+        mPhoneNumber = params[0];
+        Log.d(TAG, "phoneNumber : " + mPhoneNumber);
+        String url = "https://crm.elcity.ru/api/v1/Contact?offset=0&maxSize=20&phone=" + mPhoneNumber;
         String response = null;
 
         try {
@@ -53,7 +52,7 @@ public class AddApplicantService extends AsyncTask<String, Void, String> {
             connection.disconnect();
         } catch (IOException e) {
             e.printStackTrace();
-            Log.d(TAG, "Error during HTTP request: " + e.getMessage());
+            Log.e(TAG, "Error during HTTP request: " + e.getMessage());
         }
 
         return response;
@@ -71,12 +70,18 @@ public class AddApplicantService extends AsyncTask<String, Void, String> {
         String applicantId = null;
         try {
             JSONObject responseObj = new JSONObject(result);
-            int total = responseObj.optInt("total");
-            JSONArray contactsArray = responseObj.optJSONArray("list");
-            if (total > 0 && contactsArray != null && contactsArray.length() > 0) {
-                JSONObject contact = contactsArray.getJSONObject(0);
-                applicantId = contact.optString("id");
-                Log.d(TAG, "applicantId: " + applicantId);
+            JSONArray applicantList = responseObj.optJSONArray("list");
+
+            if (applicantList != null && applicantList.length() > 0) {
+                for (int i = 0; i < applicantList.length(); i++) {
+                    JSONObject applicant = applicantList.getJSONObject(i);
+                    String phone = applicant.optString("phoneNumber");
+
+                    if (phone.equals(mPhoneNumber)) {
+                        applicantId = applicant.optString("id");
+                        break;
+                    }
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

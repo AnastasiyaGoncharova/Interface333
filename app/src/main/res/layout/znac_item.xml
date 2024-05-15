@@ -13,6 +13,7 @@
 
         <ImageView
             android:id="@+id/imageView"
+            android:padding="5dp"
             android:layout_width="35dp"
             android:layout_height="wrap_content" />
 

@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -47,7 +46,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                     (int) map.get("priority"),
                     (String) map.get("profile"),
                     (String) map.get("id"),
-                    Collections.singletonList((String) map.get("statuses"))
+                    (List<String>) map.get("statuses")
             );
 
             Map<String, Object> applicantMap = new LinkedHashMap<>();
@@ -83,7 +82,12 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             return;
         }
         ArrayList<String> statuses = (ArrayList<String>) map.get("statuses");
-        List<String> statusesList = new ArrayList<>(statuses);
+        List<String> statusesList;
+        if (statuses != null) {
+            statusesList = new ArrayList<>(statuses);
+        } else {
+            statusesList = new ArrayList<>();
+        }
         Applicant item = new Applicant(
                 (String) map.get("firstName"),
                 (String) map.get("lastName"),
